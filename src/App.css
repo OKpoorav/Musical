@@ -363,6 +363,7 @@ body {
   height: 56px;
   border-radius: 8px;
   object-fit: cover;
+  background-color: #333; /* Add placeholder bg */
 }
 
 .player-controls {
@@ -470,4 +471,135 @@ body {
   .player-bar {
     grid-column: 1 / -1;
   }
+}
+
+/* Styles for the placeholder icon when no image is available */
+.now-playing-placeholder-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-elevated-base, #2a2a2a); /* Use a subtle bg */
+  border-radius: 8px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* === Library Page UI Enhancements === */
+.library-page h1 {
+  margin-bottom: 2rem;
+  padding-left: 2rem; /* Align with content padding */
+}
+
+/* === Home Page Card & Grid Styles (Consistent with Search/Library) === */
+
+.home-page {
+  padding-bottom: 120px; /* Ensure space for player bar */
+}
+
+.home-section {
+  margin-bottom: 3rem;
+  padding: 0 2rem; /* Add padding consistent with search */
+}
+
+.home-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-base);
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Responsive grid */
+  gap: 1.5rem;
+}
+
+.home-card {
+  background-color: var(--background-highlight);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: background-color 0.2s ease;
+  position: relative; 
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-card-image {
+  width: 100%;
+  aspect-ratio: 1 / 1; 
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  background-color: #333;
+}
+
+.home-card-info {
+  flex-grow: 1;
+  min-height: 60px;
+}
+
+.home-card-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-base);
+  margin-bottom: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-card-info p {
+  font-size: 0.85rem;
+  color: var(--text-subdued);
+  /* Allow wrapping for potentially longer playlist descriptions */
+  white-space: normal; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Limit description lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+}
+
+.home-card-toggle {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(0,0,0,0.7);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.home-card:hover .home-card-toggle {
+  opacity: 1;
+}
+
+.home-card-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Styles for Category Cards */
+.category-card .home-card-info {
+  /* Categories might not need as much space */
+  min-height: 40px; 
+}
+
+.category-card .home-card-info p {
+  display: none; /* Hide paragraph if it exists */
+}
+
+.category-icon-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #333; /* Same as image placeholder */
 }

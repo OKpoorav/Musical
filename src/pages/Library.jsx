@@ -2,49 +2,41 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { usePlayer } from '../context/PlayerContext';
 import { getLibraryItems, removeLibraryItem } from '../services/localLibrary';
-import { FaHeart } from 'react-icons/fa'; // Only need filled heart for remove
+import { FaHeart } from 'react-icons/fa';
 
-// Reusable Card for displaying library items
+// Adapted card for library items, mirroring search card style
 const LibraryDisplayCard = ({ item, onRemove, onClick }) => {
-  const handleRemoveClick = (e) => {
-    e.stopPropagation(); // Prevent card click
+  const handleRemoveClick = useCallback((e) => {
+    e.stopPropagation();
     onRemove(item.id, item.type);
-  };
+  }, [item.id, item.type, onRemove]);
 
   return (
     <motion.div
-      key={`${item.type}-${item.id}`} // Unique key combining type and id
-      className={`${item.type}-card library-item-card`} // Add specific class
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => onClick(item)} // Use the passed onClick handler
-      style={{ cursor: 'pointer', position: 'relative' }}
-      layout // Animate layout changes when items are removed
+      key={`${item.type}-${item.id}`}
+      className={`search-result-card library-item-card ${item.type}-card`} // Use search card base class
+      whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+      onClick={() => onClick(item)}
+      style={{ position: 'relative' }}
+      layout // Animate layout changes
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
     >
       <img 
         src={item.imageUrl || '/album-thumb.png'} 
         alt={item.name} 
+        className="search-card-image" // Use search card image class
         onError={(e) => { e.target.onerror = null; e.target.src='/album-thumb.png'}}
       />
-      <div className="track-info">
-        <h3>{item.name}</h3>
-        <p>{item.artist}</p>
+      <div className="search-card-info"> {/* Use search card info class */}      
+        <h3 title={item.name}>{item.name}</h3>
+        <p title={item.artist}>{item.artist}</p>
       </div>
-       {/* Remove Button (using filled heart) */}
       <button 
         onClick={handleRemoveClick} 
-        className="library-toggle-btn" 
+        className="library-toggle-btn search-card-toggle" // Use search card toggle class
         aria-label="Remove from library"
-        style={{ 
-          position: 'absolute', 
-          bottom: '10px', 
-          right: '10px', 
-          background: 'rgba(0,0,0,0.6)', 
-          border: 'none', 
-          borderRadius: '50%', 
-          padding: '8px', 
-          cursor: 'pointer' 
-        }}
       >
         <FaHeart color="#1DB954" size={18} /> 
       </button>
@@ -57,20 +49,19 @@ const Library = () => {
   const [libraryItems, setLibraryItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load items from local storage on mount
   useEffect(() => {
-    setLibraryItems(getLibraryItems());
-    setIsLoading(false);
+    // Simulate slight delay for visual feedback if needed
+    // setTimeout(() => {
+      setLibraryItems(getLibraryItems());
+      setIsLoading(false);
+    // }, 100); 
   }, []);
 
-  // Function to handle removing an item
   const handleRemoveItem = useCallback((itemId, itemType) => {
     removeLibraryItem(itemId, itemType);
-    // Update state to reflect removal immediately
     setLibraryItems(prevItems => prevItems.filter(i => !(i.id === itemId && i.type === itemType)));
   }, []);
 
-  // Function to handle clicking an item card
   const handleItemClick = useCallback((item) => {
     setCurrentTrack({
       name: item.name,
@@ -79,7 +70,6 @@ const Library = () => {
     });
   }, [setCurrentTrack]);
 
-  // Memoize filtered items to avoid re-filtering on every render
   const playlists = useMemo(() => libraryItems.filter(i => i.type === 'playlist'), [libraryItems]);
   const albums = useMemo(() => libraryItems.filter(i => i.type === 'album'), [libraryItems]);
   const tracks = useMemo(() => libraryItems.filter(i => i.type === 'track'), [libraryItems]);
@@ -93,17 +83,16 @@ const Library = () => {
       <h1>Your Library</h1>
 
       {libraryItems.length === 0 ? (
-        <p style={{ textAlign: 'center', marginTop: '2rem' }}>Your library is empty. Add items from Home or Search!</p>
+        <p style={{ textAlign: 'center', marginTop: '2rem' }}>Your library is empty. Add items from Home or Search using the ♡ icon!</p>
       ) : (
-        <>
-          {/* Playlists Section */}          
+        <div className="search-results-container"> {/* Use container from search */}        
           {playlists.length > 0 && (
-            <section className="library-section">
+            <section className="result-section"> {/* Use section class from search */}            
               <h2>Playlists</h2>
-              <div className="playlists-grid">
+              <div className="search-grid"> {/* Use grid class from search */}              
                 {playlists.map((item) => (
                   <LibraryDisplayCard 
-                    key={item.id} 
+                    key={`${item.type}-${item.id}`}
                     item={item} 
                     onRemove={handleRemoveItem}
                     onClick={handleItemClick}
@@ -113,14 +102,13 @@ const Library = () => {
             </section>
           )}
 
-          {/* Albums Section */}          
           {albums.length > 0 && (
-            <section className="library-section">
+            <section className="result-section">
               <h2>Albums</h2>
-              <div className="albums-grid">
+              <div className="search-grid">
                 {albums.map((item) => (
                   <LibraryDisplayCard 
-                    key={item.id} 
+                    key={`${item.type}-${item.id}`}
                     item={item} 
                     onRemove={handleRemoveItem}
                     onClick={handleItemClick}
@@ -130,14 +118,13 @@ const Library = () => {
             </section>
           )}
 
-          {/* Tracks Section */}          
           {tracks.length > 0 && (
-            <section className="library-section">
+            <section className="result-section">
               <h2>Tracks</h2>
-              <div className="tracks-grid">
+              <div className="search-grid">
                 {tracks.map((item) => (
                   <LibraryDisplayCard 
-                    key={item.id} 
+                    key={`${item.type}-${item.id}`}
                     item={item} 
                     onRemove={handleRemoveItem}
                     onClick={handleItemClick}
@@ -146,7 +133,7 @@ const Library = () => {
               </div>
             </section>
           )}
-        </>
+        </div>
       )}
     </div>
   );

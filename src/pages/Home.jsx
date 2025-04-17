@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { getNewReleases, getFeaturedPlaylists } from '../services/spotify';
+import { Link } from 'react-router-dom';
+import { getNewReleases, getBrowseCategories } from '../services/spotify';
 import { usePlayer } from '../context/PlayerContext';
 import { addLibraryItem, removeLibraryItem, isItemInLibrary } from '../services/localLibrary';
 import { FaHeart, FaRegHeart } from 'react-icons/fa'; // Heart icons
+import { BsGrid3X3GapFill } from 'react-icons/bs'; // Placeholder icon for categories
 
 // Component for individual album/playlist cards
 const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
@@ -14,55 +16,50 @@ const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
     setIsInLibrary(isItemInLibrary(item.id, type));
   }, [item.id, type]);
 
-  const handleToggleLibrary = (e) => {
+  const handleToggleLibrary = useCallback((e) => {
     e.stopPropagation(); // Prevent card click when clicking the heart
-    if (isInLibrary) {
-      removeLibraryItem(item.id, type);
-    } else {
-      addLibraryItem({
+    const libraryItem = {
         id: item.id,
         type: type,
         name: item.name,
-        artist: item.artists?.[0]?.name || item.owner?.display_name || 'Various Artists',
+        artist: item.artists?.[0]?.name || 'Various Artists',
         imageUrl: item.images?.[0]?.url
-      });
+      };
+
+    if (isInLibrary) {
+      removeLibraryItem(item.id, type);
+    } else {
+      addLibraryItem(libraryItem);
     }
-    setIsInLibrary(!isInLibrary); // Optimistically update UI
+    setIsInLibrary(prev => !prev); // Optimistically update UI
     if (onToggleLibrary) onToggleLibrary(); // Notify parent if needed
-  };
+  }, [isInLibrary, item, type, onToggleLibrary]);
 
   return (
     <motion.div
       key={item.id}
-      className={type === 'album' ? "music-card" : "playlist-card"}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
+      className={`home-card ${type}-card`}
+      whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
       onClick={() => onClick(item)}
       style={{ cursor: 'pointer', position: 'relative' }}
+      layout
     >
       <img 
         src={item.images?.[0]?.url || '/album-thumb.png'} 
         alt={item.name} 
         onError={(e) => { e.target.onerror = null; e.target.src='/album-thumb.png'}}
+        className="home-card-image"
       />
-      <h3>{item.name}</h3>
-      <p>{type === 'album' ? item.artists?.[0]?.name : (item.description || `By ${item.owner?.display_name}`)}</p>
+      <div className="home-card-info">
+        <h3 title={item.name}>{item.name}</h3>
+        <p title={item.artists?.[0]?.name}>{item.artists?.[0]?.name}</p>
+      </div>
       
       {/* Library Toggle Button */}
       <button 
         onClick={handleToggleLibrary} 
-        className="library-toggle-btn" 
+        className="library-toggle-btn home-card-toggle" 
         aria-label={isInLibrary ? "Remove from library" : "Add to library"}
-        style={{ 
-          position: 'absolute', 
-          bottom: '10px', 
-          right: '10px', 
-          background: 'rgba(0,0,0,0.6)', 
-          border: 'none', 
-          borderRadius: '50%', 
-          padding: '8px', 
-          cursor: 'pointer' 
-        }}
       >
         {isInLibrary 
           ? <FaHeart color="#1DB954" size={18} /> 
@@ -72,33 +69,72 @@ const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
   );
 };
 
+// Updated Category Card to be a Link
+const CategoryCard = ({ category }) => {
+  return (
+    <Link to={`/category/${category.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <motion.div
+        key={category.id}
+        className="category-card home-card"
+        whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+        style={{ cursor: 'pointer' }}
+        layout
+      >
+        {category.icons?.[0]?.url ? (
+          <img 
+            src={category.icons[0].url}
+            alt={category.name}
+            className="home-card-image category-image"
+            onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }}
+          />
+        ) : (
+          <div className="home-card-image category-icon-placeholder">
+            <BsGrid3X3GapFill size={40} color="var(--text-subdued)" />
+          </div>
+        )}
+        <div className="home-card-info">
+          <h3 title={category.name}>{category.name}</h3>
+        </div>
+      </motion.div>
+    </Link>
+  );
+};
+
 const Home = () => {
   const { setCurrentTrack } = usePlayer();
 
-  const { data: newReleases, isLoading: isLoadingReleases, error: errorReleases } = useQuery({
+  const { data: newReleasesData, isLoading: isLoadingReleases, error: errorReleases } = useQuery({
     queryKey: ['newReleases'],
     queryFn: getNewReleases
   });
 
-  const { data: featured, isLoading: isLoadingFeatured, error: errorFeatured } = useQuery({
-    queryKey: ['featured'],
-    queryFn: getFeaturedPlaylists
+  const { data: categoriesData, isLoading: isLoadingCategories, error: errorCategories } = useQuery({
+    queryKey: ['browseCategories'],
+    queryFn: getBrowseCategories
   });
 
-  const handleItemClick = useCallback((item) => {
+  const handleAlbumClick = useCallback((album) => {
     setCurrentTrack({
-      name: item.name,
-      artist: item.artists?.[0]?.name || item.owner?.display_name || 'Various Artists',
-      imageUrl: item.images?.[0]?.url
+      name: album.name,
+      artist: album.artists?.[0]?.name || 'Various Artists',
+      imageUrl: album.images?.[0]?.url
     });
   }, [setCurrentTrack]);
 
-  if (isLoadingReleases || isLoadingFeatured) {
-    return <div className="loading">Loading...</div>;
+  const isLoading = isLoadingReleases || isLoadingCategories;
+  const error = errorReleases || errorCategories;
+
+  const categories = categoriesData?.data?.categories?.items || [];
+  const newReleaseAlbums = newReleasesData?.data?.albums?.items || [];
+
+  if (isLoading) {
+    return <div className="loading">Loading Home...</div>;
   }
 
-  if (errorReleases || errorFeatured) {
-    return <div className="error">Error loading data. Please ensure API credentials are correct.</div>;
+  if (error) {
+    console.error("Home page loading error:", error);
+    const errorMessage = error.response?.data?.error?.message || error.message || "Error loading data.";
+    return <div className="error">{errorMessage} Please try again later.</div>;
   }
 
   return (
@@ -111,34 +147,29 @@ const Home = () => {
       >
         <div className="hero-content">
           <h1>Discover New Music</h1>
-          <p>Listen to the latest tracks and albums</p>
+          <p>Explore new releases and browse categories</p>
         </div>
       </motion.section>
 
-      <section className="new-releases">
+      <section className="home-section new-releases">
         <h2>New Releases</h2>
-        <div className="music-grid">
-          {newReleases?.data?.albums?.items?.map((album) => (
+        <div className="home-grid">
+          {newReleaseAlbums.map((album) => (
             <LibraryItemCard 
               key={album.id} 
               item={album} 
               type="album" 
-              onClick={handleItemClick}
+              onClick={handleAlbumClick}
             />
           ))}
         </div>
       </section>
 
-      <section className="featured">
-        <h2>Featured Playlists</h2>
-        <div className="playlist-grid">
-          {featured?.data?.playlists?.items?.map((playlist) => (
-            <LibraryItemCard 
-              key={playlist.id} 
-              item={playlist} 
-              type="playlist" 
-              onClick={handleItemClick}
-            />
+      <section className="home-section browse-categories">
+        <h2>Browse Categories</h2>
+        <div className="home-grid">
+          {categories.map((category) => (
+            <CategoryCard key={category.id} category={category} />
           ))}
         </div>
       </section>

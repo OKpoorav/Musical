@@ -101,13 +101,25 @@ spotifyApi.interceptors.request.use(async (config) => {
 
 // API Call Functions
 export const getTopTracks = () => spotifyApi.get('/me/top/tracks'); // Note: Will not work without User Auth
-export const getFeaturedPlaylists = () => spotifyApi.get('/browse/featured-playlists?country=US');
-export const getNewReleases = () => spotifyApi.get('/browse/new-releases?country=US');
-export const getTrack = (id) => spotifyApi.get(`/tracks/${id}`);
+export const getBrowseCategories = () => 
+  spotifyApi.get('/browse/categories?country=IN&limit=50'); // Get more categories
+export const getNewReleases = () => 
+  spotifyApi.get('/browse/new-releases?country=IN&limit=20');
+export const getTrack = (id) => spotifyApi.get(`/tracks/${id}?market=IN`);
 export const getArtist = (id) => spotifyApi.get(`/artists/${id}`);
-export const getAlbum = (id) => spotifyApi.get(`/albums/${id}?market=US`);
-export const search = (query) => spotifyApi.get(`/search?q=${encodeURIComponent(query)}&type=track,artist,album&market=US`);
+export const getAlbum = (id) => spotifyApi.get(`/albums/${id}?market=IN`);
+export const search = (query) => 
+  spotifyApi.get(`/search?q=${encodeURIComponent(query)}&type=track,artist,album&market=IN&limit=20`);
 export const getUserPlaylists = () => spotifyApi.get('/me/playlists'); // Note: Will not work without User Auth
 export const getUserSavedTracks = () => spotifyApi.get('/me/tracks'); // Note: Will not work without User Auth
+
+// --- Public endpoints (Client Credentials) ---
+
+// Add back getCategory and getCategoryPlaylists
+export const getCategory = (categoryId) => 
+  spotifyApi.get(`/browse/categories/${categoryId}?country=IN`);
+
+export const getCategoryPlaylists = (categoryId) => 
+  spotifyApi.get(`/browse/categories/${categoryId}/playlists?country=IN&limit=20`);
 
 export default spotifyApi; 
