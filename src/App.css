@@ -137,40 +137,165 @@ body {
 }
 
 /* Search Page */
-.search-page .search-header {
-  margin-bottom: 32px;
+.search-page {
+  padding-bottom: 120px; /* Ensure space for player bar */
+}
+
+.search-header {
+  padding: 1.5rem 2rem;
+  background-color: var(--background-base);
+  position: sticky;
+  top: 0; /* Stick to top below potential header */
+  z-index: 10;
 }
 
 .search-input-container {
-  position: relative;
-  max-width: 600px;
-}
-
-.search-input-container input {
-  width: 100%;
-  padding: 16px 48px;
-  border-radius: 12px;
-  border: none;
-  background: #1a1a1a;
-  color: #fff;
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  background-color: var(--background-highlight);
+  border-radius: 50px;
+  padding: 0.75rem 1.25rem;
+  max-width: 400px; /* Limit width */
+  position: relative; /* For fetching indicator */
 }
 
 .search-input-container svg {
+  margin-right: 0.8rem;
+  color: var(--text-subdued);
+}
+
+.search-input-container input {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-base);
+  font-size: 1rem;
+}
+
+.search-fetching-indicator {
   position: absolute;
-  left: 16px;
+  right: 1.25rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #666;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--text-subdued);
+  border-top-color: var(--essential-bright-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
+.search-results-container {
+  padding: 1rem 2rem; 
 }
 
 .result-section {
-  margin-bottom: 48px;
+  margin-bottom: 3rem;
 }
 
 .result-section h2 {
-  margin-bottom: 24px;
-  font-size: 24px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-base);
+}
+
+/* Unified Grid for Search Results */
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Responsive grid */
+  gap: 1.5rem;
+}
+
+/* Unified Card Style for Search */
+.search-result-card {
+  background-color: var(--background-highlight);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: background-color 0.2s ease;
+  position: relative; /* Needed for absolute positioned button */
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column; /* Align content vertically */
+}
+
+/* .search-result-card:hover defined in Search.jsx motion component */
+
+.search-card-image {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  background-color: #333; /* Placeholder bg */
+}
+
+.artist-card .search-card-image {
+  border-radius: 50%; /* Make artist images circular */
+}
+
+.search-card-info {
+  flex-grow: 1; /* Allow info to take up space */
+  min-height: 60px; /* Ensure minimum height for alignment */
+}
+
+.search-card-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-base);
+  margin-bottom: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-card-info p {
+  font-size: 0.85rem;
+  color: var(--text-subdued);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-card-toggle {
+  position: absolute;
+  bottom: 1rem; /* Align with padding */
+  right: 1rem;  /* Align with padding */
+  background: rgba(0,0,0,0.7);
+  border: none;
+  border-radius: 50%;
+  width: 36px; /* Explicit size */
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.search-result-card:hover .search-card-toggle {
+  opacity: 1; /* Show button on hover */
+}
+
+.search-card-toggle:hover {
+  transform: scale(1.1);
+}
+
+.no-results, .loading, .error {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-subdued);
+}
+
+.error {
+  color: var(--text-negative);
 }
 
 /* Library Page */
