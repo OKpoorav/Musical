@@ -1,61 +1,35 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { getUserPlaylists, getUserSavedTracks } from '../services/spotify';
+import { usePlayer } from '../context/PlayerContext';
 
 const Library = () => {
-  const { data: playlists } = useQuery({
-    queryKey: ['userPlaylists'],
-    queryFn: getUserPlaylists
-  });
-
-  const { data: savedTracks } = useQuery({
-    queryKey: ['userSavedTracks'],
-    queryFn: getUserSavedTracks
-  });
-
   return (
     <div className="library-page">
-      <section className="playlists-section">
-        <h2>Your Playlists</h2>
-        <div className="playlists-grid">
-          {playlists?.data?.items?.map((playlist) => (
-            <motion.div
-              key={playlist.id}
-              className="playlist-card"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <img 
-                src={playlist.images[0]?.url || '/default-playlist.png'} 
-                alt={playlist.name} 
-              />
-              <h3>{playlist.name}</h3>
-              <p>{playlist.tracks.total} tracks</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      <section className="saved-tracks-section">
-        <h2>Liked Songs</h2>
-        <div className="tracks-grid">
-          {savedTracks?.data?.items?.map((item) => (
-            <motion.div
-              key={item.track.id}
-              className="track-card"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <img src={item.track.album.images[0].url} alt={item.track.name} />
-              <div className="track-info">
-                <h3>{item.track.name}</h3>
-                <p>{item.track.artists[0].name}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      <motion.div 
+        className="message-container"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        style={{
+          padding: '2rem',
+          textAlign: 'center',
+          maxWidth: '600px',
+          margin: '4rem auto',
+          backgroundColor: 'rgba(0, 0, 0, 0.2)',
+          borderRadius: '8px'
+        }}
+      >
+        <h2 style={{ marginBottom: '1rem' }}>Library Access Limited</h2>
+        <p style={{ fontSize: '1.1rem', lineHeight: '1.6' }}>
+          This version of the application uses Spotify's Client Credentials flow, 
+          which only allows access to public data. Personal library features 
+          like playlists and liked songs require user authentication, which is 
+          not implemented in this version.
+        </p>
+        <p style={{ marginTop: '1rem', color: '#1DB954' }}>
+          Try using the Home or Search features to explore public music content!
+        </p>
+      </motion.div>
     </div>
   );
 };
