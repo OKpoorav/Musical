@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { Buffer } from 'buffer'; // Import Buffer for Base64 encoding
+import { Buffer } from 'buffer';
 
-// TODO: Use environment variables for credentials in a real application
+// Hardcoded credentials (in a real app, these should be in environment variables)
 const CLIENT_ID = '568037fe9a754246a774091dc2f5da44';
 const CLIENT_SECRET = '2b79240765db4903b3cc97ef78744503';
 
@@ -17,22 +17,15 @@ const getAccessToken = async () => {
     // TODO: Check token expiry and refresh if necessary
     return accessToken;
   }
-
-  // If a token request is already in progress, wait for it
   if (tokenPromise) {
     return tokenPromise;
   }
-
   console.log('Requesting new Spotify access token...');
-
-  // Start a new token request
   tokenPromise = (async () => {
     try {
       const response = await axios.post(
         SPOTIFY_ACCOUNTS_URL,
-        new URLSearchParams({
-          grant_type: 'client_credentials'
-        }).toString(),
+        new URLSearchParams({ grant_type: 'client_credentials' }).toString(),
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -40,28 +33,24 @@ const getAccessToken = async () => {
           },
         }
       );
-
       console.log('Token received successfully');
       accessToken = response.data.access_token;
-      // console.log("Spotify Token Obtained:", accessToken); // For debugging
-      tokenPromise = null; // Clear the promise once resolved
+      tokenPromise = null;
       return accessToken;
     } catch (error) {
       console.error('Error getting Spotify token:', error.response?.data || error.message);
-      tokenPromise = null; // Clear the promise on error
-      throw error; // Re-throw the error
+      tokenPromise = null;
+      throw error;
     }
   })();
-
   return tokenPromise;
 };
-
 
 const spotifyApi = axios.create({
   baseURL: SPOTIFY_BASE_URL,
 });
 
-// Add response interceptor to handle common errors
+// Response interceptor
 spotifyApi.interceptors.response.use(
   (response) => {
     console.log(`Successful API call to ${response.config.url}`);
@@ -73,11 +62,11 @@ spotifyApi.interceptors.response.use(
       status: error.response?.status,
       data: error.response?.data
     });
-    return Promise.reject(error);
+    throw error; // Throw error for React Query
   }
 );
 
-// Interceptor to add the token to requests
+// Request interceptor
 spotifyApi.interceptors.request.use(async (config) => {
   try {
     const token = await getAccessToken();
@@ -85,41 +74,41 @@ spotifyApi.interceptors.request.use(async (config) => {
       config.headers.Authorization = `Bearer ${token}`;
       console.log(`Making request to: ${config.url}`);
     } else {
-       console.error("No Spotify access token available for request.");
-       // Optionally handle this case, e.g., by throwing an error or queueing the request
+      console.error('No token available for request');
+      return Promise.reject(new Error('No access token available'));
     }
   } catch (error) {
-     console.error("Failed to get access token for request interceptor:", error);
-     // Handle the error appropriately, maybe cancel the request
-     return Promise.reject(error);
+    console.error('Error in request interceptor:', error);
+    return Promise.reject(error);
   }
   return config;
-}, (error) => {
-  // Handle request configuration errors
-  return Promise.reject(error);
 });
-
-// API Call Functions
-export const getTopTracks = () => spotifyApi.get('/me/top/tracks'); // Note: Will not work without User Auth
-export const getBrowseCategories = () => 
-  spotifyApi.get('/browse/categories?country=IN&limit=50'); // Get more categories
-export const getNewReleases = () => 
-  spotifyApi.get('/browse/new-releases?country=IN&limit=20');
-export const getTrack = (id) => spotifyApi.get(`/tracks/${id}?market=IN`);
-export const getArtist = (id) => spotifyApi.get(`/artists/${id}`);
-export const getAlbum = (id) => spotifyApi.get(`/albums/${id}?market=IN`);
-export const search = (query) => 
-  spotifyApi.get(`/search?q=${encodeURIComponent(query)}&type=track,artist,album&market=IN&limit=20`);
-export const getUserPlaylists = () => spotifyApi.get('/me/playlists'); // Note: Will not work without User Auth
-export const getUserSavedTracks = () => spotifyApi.get('/me/tracks'); // Note: Will not work without User Auth
 
 // --- Public endpoints (Client Credentials) ---
 
-// Add back getCategory and getCategoryPlaylists
-export const getCategory = (categoryId) => 
-  spotifyApi.get(`/browse/categories/${categoryId}?country=IN`);
+// Get Browse Categories (Using IN country code)
+export const getBrowseCategories = () => 
+  spotifyApi.get('/browse/categories?country=IN&limit=50');
 
-export const getCategoryPlaylists = (categoryId) => 
-  spotifyApi.get(`/browse/categories/${categoryId}/playlists?country=IN&limit=20`);
+// Get New Releases (Use country=IN)
+export const getNewReleases = () => 
+  spotifyApi.get('/browse/new-releases?country=IN&limit=20');
+
+// Get Track, Artist, Album (Use market=IN)
+export const getTrack = (id) => spotifyApi.get(`/tracks/${id}?market=IN`);
+export const getArtist = (id) => spotifyApi.get(`/artists/${id}`); // No market param
+export const getAlbum = (id) => spotifyApi.get(`/albums/${id}?market=IN`);
+
+// Search (Use market=IN)
+export const search = (query) => 
+  spotifyApi.get(`/search?q=${encodeURIComponent(query)}&type=track,artist,album&market=IN&limit=20`);
+
+// --- Unused/Removed Endpoints ---
+// export const getTopTracks = ...
+// export const getUserPlaylists = ...
+// export const getUserSavedTracks = ...
+// export const getFeaturedPlaylists = ...
+// export const getCategory = ...
+// export const getCategoryPlaylists = ...
 
 export default spotifyApi; 

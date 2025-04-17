@@ -6,7 +6,6 @@ import { BsPlayFill, BsSkipStart, BsSkipEnd, BsVolumeUp, BsMusicNoteBeamed } fro
 import Home from './pages/Home';
 import Search from './pages/Search';
 import Library from './pages/Library';
-import CategoryPlaylists from './pages/CategoryPlaylists';
 import { PlayerProvider, usePlayer } from './context/PlayerContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
@@ -108,7 +107,6 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/library" element={<Library />} />
-                  <Route path="/category/:categoryId" element={<CategoryPlaylists />} />
                 </Routes>
               </ErrorBoundary>
             </main>

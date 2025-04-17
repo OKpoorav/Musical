@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { getNewReleases, getBrowseCategories } from '../services/spotify';
 import { usePlayer } from '../context/PlayerContext';
 import { addLibraryItem, removeLibraryItem, isItemInLibrary } from '../services/localLibrary';
@@ -69,34 +68,32 @@ const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
   );
 };
 
-// Updated Category Card to be a Link
+// Category Card (No longer a Link)
 const CategoryCard = ({ category }) => {
   return (
-    <Link to={`/category/${category.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-      <motion.div
-        key={category.id}
-        className="category-card home-card"
-        whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-        style={{ cursor: 'pointer' }}
-        layout
-      >
-        {category.icons?.[0]?.url ? (
-          <img 
-            src={category.icons[0].url}
-            alt={category.name}
-            className="home-card-image category-image"
-            onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }}
-          />
-        ) : (
-          <div className="home-card-image category-icon-placeholder">
-            <BsGrid3X3GapFill size={40} color="var(--text-subdued)" />
-          </div>
-        )}
-        <div className="home-card-info">
-          <h3 title={category.name}>{category.name}</h3>
+    <motion.div
+      key={category.id}
+      className="category-card home-card"
+      whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+      style={{ cursor: 'default' }}
+      layout
+    >
+      {category.icons?.[0]?.url ? (
+        <img 
+          src={category.icons[0].url}
+          alt={category.name}
+          className="home-card-image category-image"
+          onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }}
+        />
+      ) : (
+        <div className="home-card-image category-icon-placeholder">
+          <BsGrid3X3GapFill size={40} color="var(--text-subdued)" />
         </div>
-      </motion.div>
-    </Link>
+      )}
+      <div className="home-card-info">
+        <h3 title={category.name}>{category.name}</h3>
+      </div>
+    </motion.div>
   );
 };
 
