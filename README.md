@@ -1,4 +1,4 @@
-# Musical - Spotify & YouTube Music App
+# Musicalish - Spotify & YouTube Music App
 
 **Live Demo:** [**musicalish.netlify.app**](https://musicalish.netlify.app/)
 
@@ -56,19 +56,9 @@ Musical is a web application that combines the Spotify Web API for browsing musi
     ```
 3.  **Spotify API Credentials:**
     *   This project uses the Spotify Client Credentials Flow.
-    *   The Client ID and Client Secret are currently hardcoded in `src/services/spotify.js`.
-    *   **Important:** For any real deployment or public repository, these should be moved to environment variables to avoid exposing them.
-        *   Create a `.env` file in the root directory.
-        *   Add your credentials:
-            ```
-            REACT_APP_SPOTIFY_CLIENT_ID=your_client_id
-            REACT_APP_SPOTIFY_CLIENT_SECRET=your_client_secret
-            ```
-        *   Update `src/services/spotify.js` to use `process.env.REACT_APP_SPOTIFY_CLIENT_ID` and `process.env.REACT_APP_SPOTIFY_CLIENT_SECRET`.
 4.  **YouTube API Key:**
     *   A YouTube Data API v3 key is required for searching videos.
-    *   This is currently hardcoded in `src/services/youtube.js`.
-    *   **Important:** Move this to an environment variable as well:
+    *   **Important:**
         *   Add to your `.env` file:
             ```
             REACT_APP_YOUTUBE_API_KEY=your_youtube_api_key
