@@ -6,10 +6,12 @@
 }
 
 body {
+  margin: 0;
+  padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: #0a0a0a;
-  color: #ffffff;
+  background-color: var(--background-base);
+  color: var(--text-base);
 }
 
 /* App Layout */
@@ -553,11 +555,16 @@ body {
   }
 
   .main-content {
-    padding: 1rem;
+    padding: 0 1rem 100px 1rem;
+    padding-bottom: 100px;
+    /* background-color: lime; */ /* DEBUG: Remove background */
   }
 
   .player-bar {
-    grid-column: 1 / -1;
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    background-color: var(--background-highlight);
   }
 
   .player-controls {
@@ -597,6 +604,7 @@ body {
 
   .main-header {
     display: flex !important;
+    top: 0 !important;
   }
 }
 
@@ -653,6 +661,7 @@ body {
   .main-header {
     padding: 0.5rem 0.8rem;
     gap: 0.8rem;
+    top: 0 !important;
   }
   
   .sidebar.open .sidebar-close-button {
@@ -668,6 +677,7 @@ body {
     padding: 0.5rem 0.8rem; 
     gap: 0.1rem 0.8rem;
     min-height: 0;
+    background-color: var(--background-highlight);
   }
   
   .player-bar .now-playing {
@@ -788,11 +798,17 @@ body {
   }
 
   .main-content {
-    padding: 0.8rem;
+    padding: 0 0.8rem 90px 0.8rem;
+    padding-bottom: 90px;
+    /* background-color: lime; */ /* DEBUG: Remove background */
   }
 
   .main-header .logo h1 {
     font-size: 18px;
+  }
+
+  .main-header {
+    top: 0 !important;
   }
 }
 
