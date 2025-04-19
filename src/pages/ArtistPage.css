@@ -1,0 +1,69 @@
+/* Inherits .detail-page, .detail-header from TrackPage.css */
+
+.artist-page {
+  /* Artist specific styles */
+}
+
+.artist-header .artist-image {
+  border-radius: 50%; /* Circular image for artist */
+}
+
+.artist-info p {
+  text-transform: capitalize; /* Capitalize genres */
+  margin-bottom: 0.3rem;
+}
+
+.artist-section {
+  margin-top: 2.5rem;
+}
+
+.artist-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-base);
+}
+
+/* Top Tracks List Styles */
+.artist-top-tracks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 800px; /* Limit width */
+}
+
+/* Reusing .track-list-item styles from AlbumPage.css for consistency */
+.artist-top-tracks-list .track-list-item {
+  /* Grid defined in AlbumPage.css: 30px 50px 1fr auto; */
+  grid-template-columns: 30px 50px 1fr auto; /* #, img, info, duration */
+  padding: 0.6rem 0.5rem;
+}
+
+.track-list-item-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-left: 10px; /* Add some space between number and image */
+}
+
+/* Style links within the top tracks list */
+.artist-top-tracks-list .track-list-item .track-name {
+  color: var(--text-base);
+}
+.artist-top-tracks-list .track-list-item .track-name:hover {
+  color: var(--text-interactive);
+}
+.artist-top-tracks-list .track-list-item .track-number,
+.artist-top-tracks-list .track-list-item .track-duration {
+  color: var(--text-subdued);
+}
+.artist-top-tracks-list .track-list-item:hover {
+  background-color: var(--background-highlight);
+}
+
+/* Discography Grid */
+.artist-discography-grid {
+  /* Using .home-grid styles */
+} 

@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { getNewReleases, getBrowseCategories } from '../services/spotify';
-import { usePlayer } from '../context/PlayerContext';
+import { useNavigate } from 'react-router-dom';
+import { getNewReleases } from '../services/spotify';
 import { addLibraryItem, removeLibraryItem, isItemInLibrary } from '../services/localLibrary';
 import { FaHeart, FaRegHeart } from 'react-icons/fa'; // Heart icons
-import { BsGrid3X3GapFill } from 'react-icons/bs'; // Placeholder icon for categories
 
-// Component for individual album/playlist cards
-const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
+// Component for individual album/playlist/track cards
+const LibraryItemCard = ({ item, type, onToggleLibrary }) => {
   const [isInLibrary, setIsInLibrary] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsInLibrary(isItemInLibrary(item.id, type));
@@ -21,7 +21,7 @@ const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
         id: item.id,
         type: type,
         name: item.name,
-        artist: item.artists?.[0]?.name || 'Various Artists',
+        artist: item.artists?.[0]?.name || item.owner?.display_name || 'Various Artists',
         imageUrl: item.images?.[0]?.url
       };
 
@@ -34,12 +34,17 @@ const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
     if (onToggleLibrary) onToggleLibrary(); // Notify parent if needed
   }, [isInLibrary, item, type, onToggleLibrary]);
 
+  const handleNavigate = () => {
+    if (!type) return;
+    navigate(`/${type}/${item.id}`);
+  };
+
   return (
     <motion.div
       key={item.id}
       className={`home-card ${type}-card`}
       whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-      onClick={() => onClick(item)}
+      onClick={handleNavigate}
       style={{ cursor: 'pointer', position: 'relative' }}
       layout
     >
@@ -51,10 +56,14 @@ const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
       />
       <div className="home-card-info">
         <h3 title={item.name}>{item.name}</h3>
-        <p title={item.artists?.[0]?.name}>{item.artists?.[0]?.name}</p>
+        <p title={item.artists?.[0]?.name || item.owner?.display_name || item.description}>
+          {type === 'playlist' 
+            ? item.description ? item.description.substring(0, 50) + (item.description.length > 50 ? '...' : '')
+            : item.owner?.display_name
+            : item.artists?.[0]?.name}
+        </p>
       </div>
       
-      {/* Library Toggle Button */}
       <button 
         onClick={handleToggleLibrary} 
         className="library-toggle-btn home-card-toggle" 
@@ -68,61 +77,27 @@ const LibraryItemCard = ({ item, type, onClick, onToggleLibrary }) => {
   );
 };
 
-// Category Card (No longer a Link)
-const CategoryCard = ({ category }) => {
-  return (
-    <motion.div
-      key={category.id}
-      className="category-card home-card"
-      whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-      style={{ cursor: 'default' }}
-      layout
-    >
-      {category.icons?.[0]?.url ? (
-        <img 
-          src={category.icons[0].url}
-          alt={category.name}
-          className="home-card-image category-image"
-          onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }}
-        />
-      ) : (
-        <div className="home-card-image category-icon-placeholder">
-          <BsGrid3X3GapFill size={40} color="var(--text-subdued)" />
-        </div>
-      )}
-      <div className="home-card-info">
-        <h3 title={category.name}>{category.name}</h3>
-      </div>
-    </motion.div>
-  );
-};
+// Export LibraryItemCard for reuse
+export { LibraryItemCard };
 
 const Home = () => {
-  const { setCurrentTrack } = usePlayer();
-
+  // Fetch New Releases
   const { data: newReleasesData, isLoading: isLoadingReleases, error: errorReleases } = useQuery({
     queryKey: ['newReleases'],
     queryFn: getNewReleases
   });
 
-  const { data: categoriesData, isLoading: isLoadingCategories, error: errorCategories } = useQuery({
-    queryKey: ['browseCategories'],
-    queryFn: getBrowseCategories
-  });
+  // Adjust loading and error states
+  const isLoading = isLoadingReleases; // Only depends on releases now
+  const error = errorReleases;
 
-  const handleAlbumClick = useCallback((album) => {
-    setCurrentTrack({
-      name: album.name,
-      artist: album.artists?.[0]?.name || 'Various Artists',
-      imageUrl: album.images?.[0]?.url
-    });
-  }, [setCurrentTrack]);
+  const newReleaseAlbumsRaw = newReleasesData?.data?.albums?.items || []; 
 
-  const isLoading = isLoadingReleases || isLoadingCategories;
-  const error = errorReleases || errorCategories;
-
-  const categories = categoriesData?.data?.categories?.items || [];
-  const newReleaseAlbums = newReleasesData?.data?.albums?.items || [];
+  // Filter albums to include only those with primarily English/common characters in the name
+  const allowedCharsRegex = /^[a-zA-Z0-9\s\-_'!?.,()&:;]+$/;
+  const newReleaseAlbums = newReleaseAlbumsRaw.filter(album => 
+    album.name && allowedCharsRegex.test(album.name)
+  );
 
   if (isLoading) {
     return <div className="loading">Loading Home...</div>;
@@ -144,30 +119,26 @@ const Home = () => {
       >
         <div className="hero-content">
           <h1>Discover New Music</h1>
-          <p>Explore new releases and browse categories</p>
+          <p>Explore the latest releases</p>
         </div>
       </motion.section>
 
       <section className="home-section new-releases">
         <h2>New Releases</h2>
-        <div className="home-grid">
+        <div className="home-grid responsive-grid">
           {newReleaseAlbums.map((album) => (
             <LibraryItemCard 
               key={album.id} 
               item={album} 
-              type="album" 
-              onClick={handleAlbumClick}
+              type="album"
             />
           ))}
-        </div>
-      </section>
-
-      <section className="home-section browse-categories">
-        <h2>Browse Categories</h2>
-        <div className="home-grid">
-          {categories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
+          {!isLoading && newReleaseAlbums.length === 0 && newReleaseAlbumsRaw.length > 0 && (
+            <p>Some releases were hidden due to incompatible characters.</p>
+          )}
+          {!isLoading && newReleaseAlbumsRaw.length === 0 && (
+            <p>No new releases found.</p>
+          )}
         </div>
       </section>
     </div>

@@ -1,24 +1,53 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { usePlayer } from '../context/PlayerContext';
 import { getLibraryItems, removeLibraryItem } from '../services/localLibrary';
-import { FaHeart } from 'react-icons/fa';
+import { FaHeart, FaPlay } from 'react-icons/fa';
 
-// Adapted card for library items, mirroring search card style
-const LibraryDisplayCard = ({ item, onRemove, onClick }) => {
+// Modified card for library items
+const LibraryDisplayCard = ({ item, onRemove }) => {
+  const navigate = useNavigate();
+  const { playTrack } = usePlayer();
+
   const handleRemoveClick = useCallback((e) => {
     e.stopPropagation();
     onRemove(item.id, item.type);
   }, [item.id, item.type, onRemove]);
 
+  // Handle click: Play track or navigate to album/playlist page
+  const handleCardClick = () => {
+    if (item.type === 'track') {
+      // For tracks, immediately attempt playback
+      playTrack({
+        name: item.name,
+        artist: item.artist,
+        imageUrl: item.imageUrl
+      });
+    } else {
+      // For albums/playlists, navigate to their detail page
+      navigate(`/${item.type}/${item.id}`);
+    }
+  };
+  
+  // Separate handler for explicit play button on tracks
+  const handlePlayButtonClick = (e) => {
+      e.stopPropagation(); // Prevent card navigation
+      playTrack({
+        name: item.name,
+        artist: item.artist,
+        imageUrl: item.imageUrl
+      });
+  };
+
   return (
     <motion.div
       key={`${item.type}-${item.id}`}
-      className={`search-result-card library-item-card ${item.type}-card`} // Use search card base class
+      className={`search-result-card library-item-card ${item.type}-card`} 
       whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-      onClick={() => onClick(item)}
-      style={{ position: 'relative' }}
-      layout // Animate layout changes
+      onClick={handleCardClick}
+      style={{ position: 'relative', cursor: 'pointer' }}
+      layout 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -26,16 +55,25 @@ const LibraryDisplayCard = ({ item, onRemove, onClick }) => {
       <img 
         src={item.imageUrl || '/album-thumb.png'} 
         alt={item.name} 
-        className="search-card-image" // Use search card image class
+        className="search-card-image" 
         onError={(e) => { e.target.onerror = null; e.target.src='/album-thumb.png'}}
       />
-      <div className="search-card-info"> {/* Use search card info class */}      
+      <div className="search-card-info">       
         <h3 title={item.name}>{item.name}</h3>
         <p title={item.artist}>{item.artist}</p>
       </div>
+      {/* Show Play button overlay on hover for tracks */}
+      {item.type === 'track' && (
+          <button 
+              onClick={handlePlayButtonClick} 
+              className="card-play-button" 
+              aria-label="Play Track">
+              <FaPlay size={18} />
+          </button>
+      )}
       <button 
         onClick={handleRemoveClick} 
-        className="library-toggle-btn search-card-toggle" // Use search card toggle class
+        className="library-toggle-btn search-card-toggle" 
         aria-label="Remove from library"
       >
         <FaHeart color="#1DB954" size={18} /> 
@@ -45,30 +83,18 @@ const LibraryDisplayCard = ({ item, onRemove, onClick }) => {
 };
 
 const Library = () => {
-  const { setCurrentTrack } = usePlayer();
   const [libraryItems, setLibraryItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate slight delay for visual feedback if needed
-    // setTimeout(() => {
-      setLibraryItems(getLibraryItems());
-      setIsLoading(false);
-    // }, 100); 
+    setLibraryItems(getLibraryItems());
+    setIsLoading(false);
   }, []);
 
   const handleRemoveItem = useCallback((itemId, itemType) => {
     removeLibraryItem(itemId, itemType);
     setLibraryItems(prevItems => prevItems.filter(i => !(i.id === itemId && i.type === itemType)));
   }, []);
-
-  const handleItemClick = useCallback((item) => {
-    setCurrentTrack({
-      name: item.name,
-      artist: item.artist,
-      imageUrl: item.imageUrl
-    });
-  }, [setCurrentTrack]);
 
   const playlists = useMemo(() => libraryItems.filter(i => i.type === 'playlist'), [libraryItems]);
   const albums = useMemo(() => libraryItems.filter(i => i.type === 'album'), [libraryItems]);
@@ -85,17 +111,16 @@ const Library = () => {
       {libraryItems.length === 0 ? (
         <p style={{ textAlign: 'center', marginTop: '2rem' }}>Your library is empty. Add items from Home or Search using the ♡ icon!</p>
       ) : (
-        <div className="search-results-container"> {/* Use container from search */}        
+        <div className="search-results-container">
           {playlists.length > 0 && (
-            <section className="result-section"> {/* Use section class from search */}            
+            <section className="result-section">            
               <h2>Playlists</h2>
-              <div className="search-grid"> {/* Use grid class from search */}              
+              <div className="search-grid responsive-grid">
                 {playlists.map((item) => (
                   <LibraryDisplayCard 
                     key={`${item.type}-${item.id}`}
                     item={item} 
                     onRemove={handleRemoveItem}
-                    onClick={handleItemClick}
                   />
                 ))}
               </div>
@@ -105,13 +130,12 @@ const Library = () => {
           {albums.length > 0 && (
             <section className="result-section">
               <h2>Albums</h2>
-              <div className="search-grid">
+              <div className="search-grid responsive-grid">
                 {albums.map((item) => (
                   <LibraryDisplayCard 
                     key={`${item.type}-${item.id}`}
                     item={item} 
                     onRemove={handleRemoveItem}
-                    onClick={handleItemClick}
                   />
                 ))}
               </div>
@@ -121,13 +145,12 @@ const Library = () => {
           {tracks.length > 0 && (
             <section className="result-section">
               <h2>Tracks</h2>
-              <div className="search-grid">
+              <div className="search-grid responsive-grid">
                 {tracks.map((item) => (
                   <LibraryDisplayCard 
                     key={`${item.type}-${item.id}`}
                     item={item} 
                     onRemove={handleRemoveItem}
-                    onClick={handleItemClick}
                   />
                 ))}
               </div>

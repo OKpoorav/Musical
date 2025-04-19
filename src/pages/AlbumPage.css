@@ -1,0 +1,84 @@
+/* Inherits styles from TrackPage.css via .detail-page, .detail-header etc. */
+/* Add AlbumPage specific styles and track list styles */
+
+.album-page {
+  /* Album specific styles */
+}
+
+.track-list-container {
+  margin-top: 2.5rem;
+}
+
+.track-list-container h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  color: var(--text-base);
+}
+
+.track-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.track-list-item {
+  display: grid;
+  grid-template-columns: 30px 1fr auto; /* Track #, Info, Duration */
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.track-list-item:hover {
+  background-color: var(--background-highlight);
+}
+
+.track-number {
+  color: var(--text-subdued);
+  text-align: right;
+}
+
+.track-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.track-name {
+  color: var(--text-base);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.track-name:hover {
+  color: var(--text-interactive);
+  text-decoration: underline;
+}
+
+.track-artists {
+  font-size: 0.9rem;
+  color: var(--text-subdued);
+}
+
+.track-duration {
+  color: var(--text-subdued);
+  font-size: 0.9rem;
+  justify-self: end; /* Align duration to the right */
+}
+
+/* Add styles for clickable list item */
+.track-list-item-clickable {
+    cursor: pointer;
+}
+
+.track-list-item-clickable:hover {
+  background-color: var(--background-highlight); 
+}
+
+.track-list-item-clickable:hover .track-name {
+    /* Optional: Change color on row hover */
+     color: var(--text-interactive);
+} 

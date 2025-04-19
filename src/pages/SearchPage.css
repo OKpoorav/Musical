@@ -1,0 +1,92 @@
+.search-page {
+  padding: 1rem 2rem;
+}
+
+.search-header {
+  position: sticky;
+  top: 0; /* Stick to top of main content area */
+  background-color: var(--background-base); /* Use variable */
+  padding: 1rem 0;
+  z-index: 10;
+  margin-bottom: 1rem;
+}
+
+.search-input-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--background-highlight); /* Use variable */
+  border-radius: 500px; /* Pill shape */
+  padding: 0.5rem 1rem;
+  width: 100%;
+  max-width: 400px; /* Limit width */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: relative; /* For indicator positioning */
+}
+
+.search-input-container svg {
+  margin-right: 0.75rem;
+  color: var(--text-subdued); /* Use variable */
+}
+
+.search-input-container input {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-base); /* Use variable */
+  font-size: 1rem;
+}
+
+.search-input-container input::placeholder {
+  color: var(--text-subdued); /* Use variable */
+}
+
+.search-fetching-indicator {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--text-subdued); /* Use variable */
+  border-top-color: var(--primary-color); /* Use variable */
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-left: 0.75rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.search-results-container {
+  margin-top: 1rem;
+}
+
+.result-section {
+  margin-bottom: 2.5rem;
+}
+
+.result-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color); /* Use variable */
+  color: var(--text-base); /* Use variable */
+}
+
+.search-grid {
+  /* Using .home-grid styles from App.css */
+  /* Can add specific overrides if needed */
+}
+
+/* Artist Card Specifics (assuming reuse of home-card styles) */
+.artist-card .home-card-image {
+  border-radius: 50%; /* Make artist images circular */
+}
+
+.artist-card:hover {
+  background-color: var(--background-elevated); /* Use variable */
+}
+
+.no-results {
+  color: var(--text-subdued); /* Use variable */
+  margin-top: 2rem;
+  text-align: center;
+} 

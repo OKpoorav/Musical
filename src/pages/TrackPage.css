@@ -1,0 +1,267 @@
+/* General Detail Page Styles */
+.detail-page {
+  padding: 2rem;
+}
+
+.detail-header {
+  display: flex;
+  align-items: flex-start; /* Align items to the top */
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.detail-image {
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.large-image {
+  width: 200px;
+  height: 200px;
+}
+
+.detail-info {
+  flex: 1;
+}
+
+.detail-info h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.detail-info h2 {
+  font-size: 1.2rem;
+  color: var(--text-subdued);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.detail-info p {
+  margin-bottom: 0.5rem;
+  color: var(--text-subdued);
+}
+
+/* --- Responsive Detail Header --- */
+@media (max-width: 600px) { /* Adjust breakpoint as needed */
+  .detail-header {
+    flex-direction: column; /* Stack image and info */
+    align-items: center; /* Center items when stacked */
+    text-align: center; /* Center text */
+  }
+
+  .detail-header .large-image {
+    width: 150px; /* Slightly smaller image */
+    height: 150px;
+    margin-bottom: 1rem;
+  }
+
+  .detail-info h1 {
+    font-size: 2rem; /* Smaller heading */
+  }
+
+   .detail-info h2 {
+     justify-content: center; /* Center artist links if they wrap */
+   }
+}
+
+/* Links for Artist and Album */
+.artist-link,
+.album-link {
+  color: var(--text-subdued);
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.artist-link:hover,
+.album-link:hover {
+  color: var(--text-base); /* Or primary-color */
+  text-decoration: underline;
+}
+
+/* Specific to Track Page if needed */
+.track-page {
+  /* Optional: Add specific page background if needed */
+  display: flex;
+  justify-content: center; /* Center the content container */
+  padding: 2rem 1rem; /* Adjust padding */
+}
+
+.track-page-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  gap: 1.5rem; /* Space between sections */
+  max-width: 600px; /* Limit content width */
+  width: 100%;
+  text-align: center; /* Center text within sections */
+}
+
+.track-image {
+  width: 250px; /* Adjust image size */
+  height: 250px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  margin-bottom: 1rem; /* Space below image */
+}
+
+.track-info-main h1 {
+  font-size: 2.2rem; /* Adjust heading size */
+  font-weight: 700;
+  color: var(--text-base);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.track-artists-links {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-interactive); /* Use accent for artists */
+  margin-bottom: 0.75rem;
+}
+
+.track-artists-links .artist-link {
+  color: inherit; /* Inherit accent color */
+  text-decoration: none;
+}
+
+.track-artists-links .artist-link:hover {
+  text-decoration: underline;
+}
+
+.track-artists-links span {
+    color: var(--text-subdued); /* Make commas subdued */
+}
+
+.track-album-info {
+  font-size: 0.95rem;
+  color: var(--text-subdued);
+}
+
+.track-album-info .album-link {
+  color: var(--text-subdued);
+  text-decoration: none;
+}
+
+.track-album-info .album-link:hover {
+  color: var(--text-base);
+  text-decoration: underline;
+}
+
+/* Large Play Button */
+.large-play-button {
+  /* Inherit base .play-button styles from App.css? Assume yes */
+  /* Override for size and look */
+  padding: 0.8rem 1.8rem;
+  font-size: 1.1rem;
+  margin: 1rem 0; /* Add vertical margin */
+}
+
+.large-play-button svg {
+  margin-right: 0.6rem;
+}
+
+.track-extra-details {
+  font-size: 0.9rem;
+  color: var(--text-subdued);
+  margin-top: 1rem;
+}
+
+.track-extra-details p {
+  margin-bottom: 0.3rem;
+}
+
+/* Remove or comment out old .detail-header specific styles */
+/* 
+.detail-header {
+  display: flex;
+  align-items: flex-start; 
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+.detail-image {
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.large-image {
+  width: 200px;
+  height: 200px;
+}
+.detail-info {
+  flex: 1;
+}
+.detail-info-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem; 
+}
+.detail-info-header h1 {
+  margin-bottom: 0; 
+}
+.play-button {
+  ... 
+}
+@media (max-width: 600px) { ... } 
+*/
+
+/* Ensure base detail-page class doesn't interfere if defined elsewhere */
+.detail-page {
+    /* Base padding defined in track-page now */
+}
+
+/* Header layout adjustment for Play button */
+.detail-info-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem; /* Adjust spacing */
+}
+
+.detail-info-header h1 {
+  margin-bottom: 0; /* Remove bottom margin from h1 */
+}
+
+/* Basic Play Button Styles */
+.play-button {
+  display: inline-flex; /* Use inline-flex */
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--primary-color); /* Use theme color */
+  color: var(--background-base); /* Dark text on bright button */
+  border: none;
+  border-radius: 500px; /* Pill shape */
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+.play-button:hover {
+  background-color: #1ed760; /* Slightly brighter hover */
+  transform: scale(1.03);
+}
+
+.play-button:active {
+  transform: scale(0.98);
+}
+
+/* Responsive adjustments for header and button */
+@media (max-width: 600px) {
+  /* ... existing detail-header styles ... */
+  
+  .detail-info-header {
+    flex-direction: column; /* Stack title and button */
+    align-items: center; /* Center items */
+    gap: 0.8rem;
+  }
+  
+  .detail-info h2 {
+    justify-content: center; /* Center artist links if they wrap */
+  }
+} 

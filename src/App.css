@@ -18,21 +18,22 @@ body {
   grid-template-columns: 240px 1fr;
   grid-template-rows: 1fr 90px;
   height: 100vh;
-  background-color: #0a0a0a;
+  background-color: var(--background-base);
 }
 
 /* Sidebar Styles */
 .sidebar {
-  background-color: #111111;
+  background-color: var(--background-base);
   padding: 24px 16px;
   grid-row: 1 / -1;
-  border-right: 1px solid #222;
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
 }
 
 .logo {
   margin-bottom: 32px;
+  padding-left: 8px;
 }
 
 .logo h1 {
@@ -40,6 +41,7 @@ body {
   background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   font-weight: 700;
 }
 
@@ -52,31 +54,35 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s ease, color 0.2s ease;
   font-weight: 500;
   color: #b3b3b3;
   text-decoration: none;
 }
 
 .nav-link:hover {
-  background-color: #222;
-  color: #fff;
+  background-color: var(--background-highlight);
+  color: #ffffff;
 }
 
 .nav-link.active {
-  background-color: #222;
-  color: #fff;
+  background-color: var(--background-highlight);
+  color: #ffffff;
+}
+
+.nav-link.active svg {
+  color: #ffffff;
 }
 
 .now-playing-mini {
   margin-top: auto;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  padding: 12px;
+  background: var(--background-highlight);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -91,9 +97,9 @@ body {
 
 /* Main Content */
 .main-content {
-  padding: 32px;
+  padding: 2rem;
   overflow-y: auto;
-  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+  background: var(--background-base);
 }
 
 /* Home Page */
@@ -288,6 +294,47 @@ body {
   transform: scale(1.1);
 }
 
+/* Style for Play Button Overlay on Cards (Tracks) */
+.card-play-button {
+  position: absolute;
+  bottom: 1rem; /* Position near the bottom */
+  right: calc(1rem + 36px + 0.5rem); /* Position left of the library toggle (right padding + toggle width + gap) */
+  background: var(--primary-color);
+  color: var(--text-base);
+  border: none;
+  border-radius: 50%;
+  width: 36px; 
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  padding: 0; /* Reset padding */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Show play button on card hover */
+.search-result-card:hover .card-play-button,
+.home-card:hover .card-play-button { 
+  opacity: 1; 
+}
+
+.card-play-button:hover {
+  transform: scale(1.1);
+  background-color: var(--text-interactive);
+}
+
+.card-play-button:active {
+    transform: scale(0.95);
+}
+
+/* Make sure toggle button is still clickable */
+.library-toggle-btn {
+    z-index: 1; /* Ensure toggle is above play button if somehow overlapping */
+}
+
 .no-results, .loading, .error {
   text-align: center;
   padding: 3rem 1rem;
@@ -342,80 +389,98 @@ body {
 
 /* Player Bar */
 .player-bar {
-  grid-column: 2 / -1;
-  display: flex;
-  justify-content: space-between;
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  padding: 16px 32px;
-  background-color: #111111;
-  border-top: 1px solid #222;
+  padding: 0 1.5rem;
+  height: 90px;
+  background-color: var(--background-highlight);
+  border-top: 1px solid var(--border-color);
 }
 
 .now-playing {
   display: flex;
   align-items: center;
-  gap: 16px;
-  width: 30%;
+  gap: 1rem;
+  justify-self: start;
 }
 
-.now-playing img {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
+.now-playing img,
+.now-playing .now-playing-placeholder-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
   object-fit: cover;
-  background-color: #333; /* Add placeholder bg */
+  background-color: var(--background-elevated);
+}
+
+.now-playing .track-info h4 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-base);
+}
+
+.now-playing .track-info p {
+  font-size: 0.8rem;
+  color: var(--text-subdued);
+}
+
+.player-center-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .player-controls {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 1.5rem;
 }
 
 .player-controls button {
   background: none;
   border: none;
-  color: #fff;
+  color: var(--text-subdued);
   cursor: pointer;
-  padding: 8px;
+  padding: 6px;
   border-radius: 50%;
-  transition: all 0.2s;
+  transition: color 0.2s ease, background-color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.player-controls button:hover {
+  color: var(--text-base);
+}
+
 .player-controls .play {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+  width: 40px;
+  height: 40px;
+  background: var(--text-base);
+  color: var(--background-base);
   border-radius: 50%;
+}
+
+.player-controls .play:hover {
+  background: var(--text-base);
+  color: #000;
+  transform: scale(1.05);
 }
 
 .volume-controls {
-  width: 30%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  justify-content: flex-end;
-  color: #666;
+  gap: 0.75rem;
+  justify-self: end;
+  color: var(--text-subdued);
 }
 
 .volume-controls input[type="range"] {
-  width: 100px;
-  -webkit-appearance: none;
-  background: #333;
-  height: 4px;
-  border-radius: 2px;
-  cursor: pointer;
-}
-
-.volume-controls input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  background: #fff;
-  border-radius: 50%;
+  width: 80px;
 }
 
 /* Animations */
@@ -461,15 +526,273 @@ body {
 
 @media (max-width: 768px) {
   .app {
-    grid-template-columns: 1fr;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr auto;
   }
-  
+
   .sidebar {
+    width: 70px;
+    padding: 1rem 0.5rem;
+  }
+
+  .sidebar .logo h1 {
     display: none;
   }
-  
+
+  .sidebar .nav-link span {
+    display: none;
+  }
+
+  .sidebar .nav-link {
+    justify-content: center;
+    padding: 0.8rem 0;
+  }
+
+  .sidebar .now-playing-mini {
+    display: none;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
   .player-bar {
     grid-column: 1 / -1;
+  }
+
+  .player-controls {
+    gap: 0.5rem;
+  }
+  
+  .player-bar .now-playing {
+    gap: 0.75rem;
+  }
+  .player-bar .now-playing img,
+  .player-bar .now-playing .now-playing-placeholder-icon {
+    width: 40px;
+    height: 40px;
+  }
+  .player-bar .now-playing .track-info h4 {
+    font-size: 0.9rem;
+  }
+   .player-bar .now-playing .track-info p {
+    font-size: 0.75rem;
+  }
+
+  .volume-controls {
+    max-width: 100px;
+  }
+  .volume-controls input[type="range"] {
+    width: 60px;
+  }
+
+  .responsive-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+
+  .player-center-controls {
+    min-width: 150px;
+  }
+
+  .main-header {
+    display: flex !important;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "main"
+      "player";
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 250px;
+    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 110;
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    padding: 24px 16px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    padding: 24px 16px;
+  }
+
+  .sidebar.open .logo h1 {
+    display: block !important;
+  }
+  
+  .sidebar.open .nav-link span {
+    display: inline !important;
+  }
+  
+  .sidebar.open .nav-link {
+    justify-content: flex-start;
+    padding: 10px 16px;
+  }
+  
+  .sidebar.open .now-playing-mini {
+    display: flex !important;
+  }
+
+  .app.sidebar-mobile-open .sidebar-overlay {
+    display: block;
+  }
+
+  .main-header {
+    padding: 0.5rem 0.8rem;
+    gap: 0.8rem;
+  }
+  
+  .sidebar.open .sidebar-close-button {
+    display: block;
+  }
+
+  .player-bar {
+    grid-template-columns: auto 1fr; 
+    grid-template-rows: auto auto; 
+    grid-template-areas:
+      "playing controls"
+      "progress progress"; 
+    padding: 0.5rem 0.8rem; 
+    gap: 0.1rem 0.8rem;
+    min-height: 0;
+  }
+  
+  .player-bar .now-playing {
+      grid-area: playing;
+      flex-shrink: 0;
+      min-width: 0;
+      overflow: hidden;
+      gap: 0.5rem;
+  }
+  .player-bar .now-playing img,
+  .player-bar .now-playing .now-playing-placeholder-icon {
+      width: 36px;
+      height: 36px;
+  }
+  .player-bar .now-playing .track-info {
+      overflow: hidden;
+  }
+  .player-bar .now-playing .track-info h4 {
+      font-size: 0.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+   .player-bar .now-playing .track-info p {
+      font-size: 0.7rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+
+  .player-center-controls {
+    grid-area: controls; 
+    display: flex; 
+    flex-direction: row; 
+    justify-content: flex-end; 
+    align-items: center;
+    gap: 0.3rem;
+    overflow: hidden;
+  }
+  
+  .player-center-controls .player-controls {
+      padding-bottom: 0; 
+      gap: 0.5rem;
+      order: 1; 
+  }
+  .player-center-controls .player-controls .play {
+      width: 32px;
+      height: 32px;
+  }
+  .player-center-controls .player-controls .play svg {
+      font-size: 20px;
+  }
+  
+   .player-center-controls .progress-bar-container {
+       grid-area: progress; 
+       padding: 0; 
+       width: 100%; 
+       margin-top: 0.3rem;
+   }
+   .player-center-controls .progress-bar-container .time {
+       font-size: 0.7rem;
+       min-width: 30px;
+   }
+
+  .volume-controls {
+    display: flex; 
+    align-items: center;
+    padding-top: 0; 
+    order: 0;
+  }
+  
+  .volume-controls svg {
+      font-size: 18px;
+  }
+  .volume-controls input[type="range"] {
+      width: 50px;
+      height: 3px;
+  }
+   .volume-controls input[type="range"]::-webkit-slider-thumb {
+      width: 10px;
+      height: 10px;
+  }
+   .volume-controls input[type="range"]::-moz-range-thumb {
+      width: 10px;
+      height: 10px;
+  }
+
+  .home-grid,
+  .responsive-grid {
+    /* Force 3 columns */
+    grid-template-columns: 1fr 1fr 1fr; 
+    gap: 0.8rem; /* Keep the gap */
+  }
+
+  .home-card,
+  .search-result-card {
+    padding: 0.8rem;
+  }
+  
+  .home-card-image,
+  .search-card-image {
+    margin-bottom: 0.8rem;
+  }
+  
+  .home-card-info h3,
+  .search-card-info h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+  }
+  
+  .home-card-info p,
+  .search-card-info p {
+    font-size: 0.75rem;
+  }
+
+  .menu-button {
+     padding: 0.5rem;
+  }
+
+  .main-content {
+    padding: 0.8rem;
+  }
+
+  .main-header .logo h1 {
+    font-size: 18px;
   }
 }
 
@@ -478,26 +801,26 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--background-elevated-base, #2a2a2a); /* Use a subtle bg */
+  background-color: var(--background-elevated-base, #2a2a2a);
   border-radius: 8px;
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
 }
 
 /* === Library Page UI Enhancements === */
 .library-page h1 {
   margin-bottom: 2rem;
-  padding-left: 2rem; /* Align with content padding */
+  padding-left: 2rem;
 }
 
 /* === Home Page Card & Grid Styles (Consistent with Search/Library) === */
 
 .home-page {
-  padding-bottom: 120px; /* Ensure space for player bar */
+  padding-bottom: 120px;
 }
 
 .home-section {
   margin-bottom: 3rem;
-  padding: 0 2rem; /* Add padding consistent with search */
+  padding: 0 2rem;
 }
 
 .home-section h2 {
@@ -507,10 +830,11 @@ body {
   color: var(--text-base);
 }
 
-.home-grid {
+.home-grid,
+.responsive-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Responsive grid */
   gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 }
 
 .home-card {
@@ -525,13 +849,17 @@ body {
   flex-direction: column;
 }
 
+.home-card:hover {
+    background-color: var(--background-elevated);
+}
+
 .home-card-image {
   width: 100%;
   aspect-ratio: 1 / 1; 
   object-fit: cover;
   border-radius: 6px;
   margin-bottom: 1rem;
-  background-color: #333;
+  background-color: var(--background-elevated);
 }
 
 .home-card-info {
@@ -552,11 +880,9 @@ body {
 .home-card-info p {
   font-size: 0.85rem;
   color: var(--text-subdued);
-  /* Allow wrapping for potentially longer playlist descriptions */
   white-space: normal; 
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Limit description lines */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;  
@@ -566,11 +892,11 @@ body {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.5);
   border: none;
   border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -589,17 +915,79 @@ body {
 
 /* Styles for Category Cards */
 .category-card .home-card-info {
-  /* Categories might not need as much space */
   min-height: 40px; 
 }
 
 .category-card .home-card-info p {
-  display: none; /* Hide paragraph if it exists */
+  display: none;
 }
 
 .category-icon-placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #333; /* Same as image placeholder */
+  background-color: var(--background-elevated);
+}
+
+/* Header in Main Content */
+.main-header {
+  display: none; /* Hide by default on larger screens */
+  align-items: center; 
+  padding: 0.5rem 0.8rem; /* Adjusted padding slightly */
+  margin-bottom: 1rem;
+  position: sticky;
+  top: 0;
+  background-color: var(--background-base);
+  z-index: 50;
+  gap: 1rem; /* Add gap between button and logo */
+}
+
+/* Style for the logo specifically within the header */
+.main-header .logo {
+  margin-bottom: 0; /* Override default logo margin */
+  padding-left: 0; /* Override default logo padding */
+}
+
+.main-header .logo h1 {
+  font-size: 20px; /* Slightly smaller for header */
+  /* Gradient is inherited */
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  color: var(--text-subdued);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+.menu-button:hover {
+  color: var(--text-base);
+}
+
+/* Sidebar close button */
+.sidebar-close-button {
+    display: none;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-subdued);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+.sidebar-close-button:hover {
+    color: var(--text-base);
+}
+
+/* Overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 100;
 }

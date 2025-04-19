@@ -18,6 +18,26 @@
 .env.test.local
 .env.production.local
 
+# Logs
+*.log
+debug.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Build directory
+build/
+
+# Environment variables
+.env
+.env*.local
+
+# Optional editor directories
+.vscode
+
+# Credential helpers (if specific patterns are known)
+.git-credentials*

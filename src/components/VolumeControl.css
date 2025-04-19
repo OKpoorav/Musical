@@ -1,0 +1,47 @@
+.volume-controls {
+    /* Styles inherited from App.css for flex layout */
+    /* Add specific styles here */
+}
+
+.volume-slider {
+  width: 80px; /* Or desired width */
+  height: 4px;
+  border-radius: 2px;
+  cursor: pointer;
+  /* Use transparent background as inline style handles fill */
+  background-color: transparent; 
+  -webkit-appearance: none; 
+  appearance: none; 
+  vertical-align: middle; /* Align better with icon */
+}
+
+/* Thumb styling for WebKit browsers */
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px; /* Slightly smaller thumb */
+  height: 12px;
+  background-color: #ffffff; 
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.volume-slider:hover::-webkit-slider-thumb {
+  background-color: var(--primary-color);
+}
+
+/* Thumb styling for Firefox */
+.volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.volume-slider:hover::-moz-range-thumb {
+  background-color: var(--primary-color);
+} 

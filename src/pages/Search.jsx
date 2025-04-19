@@ -1,89 +1,54 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { search } from '../services/spotify';
 import { BiSearch } from 'react-icons/bi';
-import { usePlayer } from '../context/PlayerContext';
-import { addLibraryItem, removeLibraryItem, isItemInLibrary } from '../services/localLibrary';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
+import { LibraryItemCard } from './Home';
+import './SearchPage.css';
 
-// Card component for Search results (Tracks and Albums)
-const SearchResultCard = ({ item, type, onClick, onToggleLibrary }) => {
-  const [isInLibrary, setIsInLibrary] = useState(false);
+// Custom hook for debouncing
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
-    setIsInLibrary(isItemInLibrary(item.id, type));
-  }, [item.id, type]);
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
 
-  const handleToggleLibrary = useCallback((e) => {
-    e.stopPropagation();
-    const libraryItem = {
-      id: item.id,
-      type: type,
-      name: item.name,
-      artist: type === 'track' ? item.artists?.[0]?.name || 'Unknown Artist' : item.artists?.[0]?.name || 'Various Artists',
-      imageUrl: type === 'track' ? item.album?.images?.[0]?.url : item.images?.[0]?.url,
+    // Cancel the timeout if value changes (also on delay change or unmount)
+    return () => {
+      clearTimeout(handler);
     };
+  }, [value, delay]);
 
-    if (isInLibrary) {
-      removeLibraryItem(item.id, type);
-    } else {
-      addLibraryItem(libraryItem);
-    }
-    setIsInLibrary(prev => !prev); // Use functional update
-    if (onToggleLibrary) onToggleLibrary();
-  }, [isInLibrary, item, type, onToggleLibrary]);
+  return debouncedValue;
+}
 
-  const imageUrl = (type === 'track' ? item.album?.images?.[0]?.url : item.images?.[0]?.url) || '/album-thumb.png';
-  const artistName = item.artists?.[0]?.name || (type === 'track' ? 'Unknown Artist' : 'Various Artists');
-
-  return (
-    <motion.div
-      className={`search-result-card ${type}-card`}
-      whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }} // Subtle hover effect
-      onClick={() => onClick(item)}
-      style={{ position: 'relative' }}
-      layout // Enable animation on layout changes
-    >
-      <img 
-        src={imageUrl} 
-        alt={item.name} 
-        className="search-card-image"
-        onError={(e) => { e.target.onerror = null; e.target.src='/album-thumb.png'}}
-      />
-      <div className="search-card-info">
-        <h3 title={item.name}>{item.name}</h3>
-        <p title={artistName}>{artistName}</p>
-      </div>
-      <button 
-        onClick={handleToggleLibrary} 
-        className="library-toggle-btn search-card-toggle"
-        aria-label={isInLibrary ? "Remove from library" : "Add to library"}
-      >
-        {isInLibrary 
-          ? <FaHeart color="#1DB954" size={18} /> 
-          : <FaRegHeart color="white" size={18} />}
-      </button>
-    </motion.div>
-  );
-};
-
-// Simple Artist card (no library interaction)
+// Simple Artist card - Now navigates
 const ArtistCard = ({ artist }) => {
-  const imageUrl = artist.images?.[0]?.url || '/default-artist.png';
+  const navigate = useNavigate();
+  const imageUrl = artist.images?.[0]?.url || '/default-artist.png'; // TODO: Replace with a better placeholder
+
+  const handleNavigate = () => {
+    navigate(`/artist/${artist.id}`);
+  };
+
   return (
     <motion.div
-      className="search-result-card artist-card"
+      className="search-result-card artist-card home-card" // Add home-card class for potential style reuse
       whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+      style={{ cursor: 'pointer' }} // Add pointer cursor
+      onClick={handleNavigate} // Add navigation handler
       layout
     >
       <img 
         src={imageUrl} 
         alt={artist.name} 
-        className="search-card-image artist-image"
-        onError={(e) => { e.target.onerror = null; e.target.src='/default-artist.png'}}
+        className="search-card-image artist-image home-card-image" // Add home-card-image class
+        onError={(e) => { e.target.onerror = null; e.target.src='/default-artist.png'}} // TODO: Placeholder
       />
-      <div className="search-card-info">
+      <div className="search-card-info home-card-info"> {/* Add home-card-info class */}
         <h3 title={artist.name}>{artist.name}</h3>
         <p>Artist</p>
       </div>
@@ -93,91 +58,96 @@ const ArtistCard = ({ artist }) => {
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const { setCurrentTrack } = usePlayer();
+  const debouncedSearchTerm = useDebounce(searchTerm, 500); // Debounce search term by 500ms
 
   const { data: searchResults, isLoading, error, isFetching } = useQuery({
-    queryKey: ['search', searchTerm],
-    queryFn: () => search(searchTerm),
-    enabled: searchTerm.trim().length > 2, // Trim whitespace and check length
-    staleTime: 1000 * 60 * 5,
+    queryKey: ['search', debouncedSearchTerm], // Use debounced term
+    queryFn: () => search(debouncedSearchTerm),
+    // Only run query if debounced term is long enough
+    enabled: debouncedSearchTerm.trim().length > 2, 
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    keepPreviousData: true, // Keep showing old results while new ones load
   });
 
-  const handleTrackClick = useCallback((track) => {
-    setCurrentTrack({
-      name: track.name,
-      artist: track.artists?.[0]?.name || 'Unknown Artist',
-      imageUrl: track.album?.images?.[0]?.url
-    });
-  }, [setCurrentTrack]);
-
-  const handleAlbumClick = useCallback((album) => {
-    setCurrentTrack({
-      name: album.name,
-      artist: album.artists?.[0]?.name || 'Unknown Artist',
-      imageUrl: album.images?.[0]?.url
-    });
-  }, [setCurrentTrack]);
-
   const renderResults = () => {
-    // Use `isFetching` for a subtle loading indicator during background refetches
-    // `isLoading` is only true for the initial load
-    if (isLoading) return <div className="loading">Searching...</div>;
-    if (error) return <div className="error">Error performing search. Please try again.</div>;
+    // Use `isLoading` for initial load, `isFetching` for subsequent loads
+    if (isLoading && !searchResults) return <div className="loading">Searching...</div>;
+    // Don't show error if we are keeping previous data and just fetching fails
+    if (error && !isFetching && !searchResults) return <div className="error">Error performing search. Please try again.</div>;
     
     const tracks = searchResults?.data?.tracks?.items || [];
     const artists = searchResults?.data?.artists?.items || [];
     const albums = searchResults?.data?.albums?.items || [];
 
-    if (tracks.length === 0 && artists.length === 0 && albums.length === 0) {
-      return <div className="no-results">No results found for "{searchTerm}".</div>;
+    const noResultsFound = tracks.length === 0 && artists.length === 0 && albums.length === 0;
+    const hasSearchTerm = debouncedSearchTerm.trim().length > 2;
+
+    // Show no results message only if searching and nothing found
+    if (!isFetching && hasSearchTerm && noResultsFound) {
+      return <div className="no-results">No results found for "{debouncedSearchTerm}".</div>;
     }
 
-    return (
-      <div className="search-results-container"> {/* New container */}      
-        {tracks.length > 0 && (
-          <section className="result-section">
-            <h2>Songs</h2>
-            <div className="search-grid">
-              {tracks.map((track) => (
-                <SearchResultCard 
-                  key={track.id} 
-                  item={track} 
-                  type="track" 
-                  onClick={handleTrackClick}
-                />
-              ))}
-            </div>
-          </section>
-        )}
+    // Show initial placeholder if not searching and not fetching
+    if (!isFetching && !hasSearchTerm) {
+        return <div className="no-results search-placeholder">Search for songs, artists, or albums.</div>; 
+    }
+    
+    // If fetching or has results, render the sections
+    if (isFetching || !noResultsFound) {
+      return (
+        <div className="search-results-container">
+         {/* Only render sections if not initial loading OR if there are results */}
+         { (isFetching || tracks.length > 0) && (
+            <section className="result-section">
+              <h2>Songs</h2>
+              <div className="search-grid home-grid responsive-grid"> {/* Add responsive-grid class */}
+                {tracks.map((track) => (
+                  <LibraryItemCard 
+                    key={track.id} 
+                    item={{ // Adapt item structure for LibraryItemCard if needed
+                      ...track,
+                      images: track.album?.images // Tracks use album images
+                    }}
+                    type="track" 
+                    // onClick is handled internally by LibraryItemCard for navigation
+                    // onToggleLibrary can be added if needed for search results
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          { (isFetching || artists.length > 0) && (
+            <section className="result-section">
+              <h2>Artists</h2>
+              <div className="search-grid home-grid responsive-grid"> {/* Add responsive-grid class */}
+                {artists.map((artist) => (
+                  // ArtistCard kept for now, potentially replace later
+                  <ArtistCard key={artist.id} artist={artist} />
+                ))}
+              </div>
+            </section>
+          )}
+          { (isFetching || albums.length > 0) && (
+            <section className="result-section">
+              <h2>Albums</h2>
+              <div className="search-grid home-grid responsive-grid"> {/* Add responsive-grid class */}
+                {albums.map((album) => (
+                   <LibraryItemCard 
+                     key={album.id} 
+                     item={album} // Album structure should match LibraryItemCard expectation
+                     type="album" 
+                     // onClick is handled internally by LibraryItemCard for navigation
+                   />
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      );
+    }
 
-        {artists.length > 0 && (
-          <section className="result-section">
-            <h2>Artists</h2>
-            <div className="search-grid">
-              {artists.map((artist) => (
-                <ArtistCard key={artist.id} artist={artist} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {albums.length > 0 && (
-          <section className="result-section">
-            <h2>Albums</h2>
-            <div className="search-grid">
-              {albums.map((album) => (
-                 <SearchResultCard 
-                   key={album.id} 
-                   item={album} 
-                   type="album" 
-                   onClick={handleAlbumClick}
-                 />
-              ))}
-            </div>
-          </section>
-        )}
-      </div>
-    );
+    // Fallback if none of the above conditions met (should be rare)
+    return null; 
   };
 
   return (
@@ -187,28 +157,28 @@ const Search = () => {
           <BiSearch size={24} />
           <input
             type="text"
-            placeholder="Search for songs, artists, or albums"
+            placeholder="What do you want to listen to?"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             aria-label="Search Input"
           />
-          {isFetching && <div className="search-fetching-indicator"></div>} {/* Subtle indicator */}
+          {/* Use isFetching for the indicator */}
+          {isFetching && <div className="search-fetching-indicator"></div>}
         </div>
       </div>
 
-      <AnimatePresence mode="wait"> {/* Use mode=wait for smoother transitions */}
-        {searchTerm.trim().length > 2 && (
+      <AnimatePresence mode="wait">
+         {/* Always render the motion.div container, let renderResults handle content */}
           <motion.div
-            key={searchTerm} // Add key for smooth animation on search term change
+            key={debouncedSearchTerm || 'initial'} // Key changes when search starts/stops
             className="search-results"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
           >
             {renderResults()} 
           </motion.div>
-        )}
       </AnimatePresence>
     </div>
   );
